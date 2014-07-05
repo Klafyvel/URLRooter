@@ -4,7 +4,7 @@
 
 import re
 
-good_url = re.compile(r'^(\w+/)*(\w+((:(\w|/|\?|\.|\-|\_)+)|/)?)?$')
+good_url = re.compile(r'^/?(\w+/)*(\w+((:(\w|/|\?|\.|\-|\_)+)|/)?)?$')
 
 def concatenate_list_of_str(lis):
 	r = ''
@@ -28,21 +28,26 @@ class OverWritingExistingURL(Exception):
 class router:
 	def __init__(self, dic = {}):
 		self.main_node = Node()
-		self.create_tree_from_dict(dic)
+		self.dic = dic
+		self.create_tree_from_dict()
 
-	def create_tree_from_dict(self, dic):
+	def create_tree_from_dict(self):
 		try:
-			self.main_node.create_children(dic)
+			self.main_node.create_children(self.dic)
 		except OverWritingExistingURL as url:
-			raise OverWritingExistingURL("The URL \'{}\'  is in conflict with a function. Cannot be created.".format(url))
+			raise OverWritingExistingURL("The URL \'{}\'  is in conflict with a function. \
+				Cannot be created.".format(url))
 
 
 	def run(self, url):
 		if is_malformed_url(url):
 			raise MalformedURL('The URL \'{}\' is not valid.'.format(url))
 		else:
+			url_cpy = url
+			if url[0] is not '/':
+				url_cpy = '/' + url
 			try:
-				self.main_node.next_url_or_func(url)
+				self.main_node.next_url_or_func(url_cpy)
 			except UnknowURL as error:
 				raise UnknowURL("The URL \'{}\' is not registered yet.".format(url))
 

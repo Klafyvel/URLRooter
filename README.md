@@ -29,7 +29,7 @@ Just change the `urls.py` !
 	urls = router(
 		{
 			#Some urls ...
-			'useless/say' : functions.say,
+			'/useless/say' : functions.say,
 		}
 	)
 
