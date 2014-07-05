@@ -22,6 +22,8 @@ class UnknowURL(Exception):
 	pass
 class MalformedURL(Exception):
 	pass
+class OverWritingExistingURL(Exception):
+	pass
 
 class router:
 	def __init__(self, dic = {}):
@@ -29,7 +31,10 @@ class router:
 		self.create_tree_from_dict(dic)
 
 	def create_tree_from_dict(self, dic):
-		self.main_node.create_children(dic)
+		try:
+			self.main_node.create_children(dic)
+		except OverWritingExistingURL as url:
+			raise OverWritingExistingURL("The URL \'{}\'  is in conflict with a function. Cannot be created.".format(url))
 
 
 	def run(self, url):
@@ -39,7 +44,7 @@ class router:
 			try:
 				self.main_node.next_url_or_func(url)
 			except UnknowURL as error:
-				raise UnknowURL("The url \'{}\' is not registered yet.".format(url))
+				raise UnknowURL("The URL \'{}\' is not registered yet.".format(url))
 
 class Node(dict):
 	def __init__(self, dic={}):
@@ -63,10 +68,15 @@ class Node(dict):
 		for url in dic.keys():
 			first_word = self.url_parse.split(url)[0]
 			next_url = re.sub(first_word, '', url)[1:]
-			if next_url is not '':			
+			if next_url is not '':
 				if not first_word in self.keys():
 					self[first_word] = Node()
-				self[first_word].create_children({next_url : dic[url]})
+				if isinstance(self[first_word], Element):
+					raise OverWritingExistingURL(url)
+				try:
+					self[first_word].create_children({next_url : dic[url]})
+				except OverWritingExistingURL:
+					raise OverWritingExistingURL(url)
 			else :
 				self[first_word] = Element(dic[url])
 
