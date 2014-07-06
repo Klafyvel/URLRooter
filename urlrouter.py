@@ -4,7 +4,7 @@
 
 import re
 
-good_url = re.compile(r'^/?(\w+/)*(\w+(:(\w|/)+)*)?$') # some black magic :p
+good_url = re.compile(r'^/?(\w+/)*(\w+(:\w+)*)?$') # some black magic :p
 
 class UnknowURL(Exception):
 	pass
@@ -62,7 +62,7 @@ class Node(dict):
 		"""
 		first_word = self.url_parse.split(url)[0]
 		first_word = self.arg_parse.split(first_word)[0]
-		next_url = re.sub(args, '', re.sub(first_word, '', url)[1:])
+		next_url = re.sub(first_word, '', url)[1:]
 		if first_word in self.keys():
 			try:
 				self[first_word].next_url_or_func(next_url)
@@ -104,8 +104,7 @@ class Element:
 		self.func(self.parse_args(args))
 	def parse_args(self, args):
 		"""
-		The arguments given as 'e/foo/bar' are parsed as ['e', 'foo', 'bar'].
+		The arguments given as 'e:foo:bar' are parsed as ['e', 'foo', 'bar'].
 		"""
-		print(args)
 		return self.args_parse.split(args)
 
