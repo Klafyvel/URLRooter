@@ -4,17 +4,7 @@
 
 import re
 
-good_url = re.compile(r'^/?(\w+/)*(\w+((:(\w|/)+)|/)?)?$') # some black magic :p
-
-
-def is_malformed_url(url):
-	"""
-	Detects if the given url is malformed.
-	"""
-	if good_url.match(url):
-		return False
-	else:
-		return True
+good_url = re.compile(r'^/?(\w+/)*(\w+(:(\w|/)+)*)?$') # some black magic :p
 
 class UnknowURL(Exception):
 	pass
@@ -47,7 +37,7 @@ class router:
 		"""
 		Tries to run the function associated to an url.
 		"""
-		if is_malformed_url(url):
+		if not good_url.match(url):
 			raise MalformedURL('The URL \'{}\' is not valid.'.format(url))
 		else:
 			url_cpy = url
@@ -71,9 +61,8 @@ class Node(dict):
 		Tries to give to the appropriate child the url.
 		"""
 		first_word = self.url_parse.split(url)[0]
-		args = ''.join(self.arg_parse.split(first_word)[1:])
 		first_word = self.arg_parse.split(first_word)[0]
-		next_url = args + re.sub(args, '', re.sub(first_word, '', url)[1:])
+		next_url = re.sub(args, '', re.sub(first_word, '', url)[1:])
 		if first_word in self.keys():
 			try:
 				self[first_word].next_url_or_func(next_url)
@@ -107,7 +96,7 @@ class Element:
 	"""
 	def __init__(self, func):
 		self.func = func
-		self.args_parse = re.compile(r'/')
+		self.args_parse = re.compile(r':')
 	def next_url_or_func(self, args):
 		"""
 		Call the function.
@@ -117,5 +106,6 @@ class Element:
 		"""
 		The arguments given as 'e/foo/bar' are parsed as ['e', 'foo', 'bar'].
 		"""
+		print(args)
 		return self.args_parse.split(args)
 
