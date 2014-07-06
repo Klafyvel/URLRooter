@@ -6,15 +6,6 @@ import re
 
 good_url = re.compile(r'^/?(\w+/)*(\w+((:(\w|/)+)|/)?)?$') # some black magic :p
 
-def concatenate_list_of_str(lis):
-	"""
-	Returns all the elements of the given list concatenated.
-	Ex: ['a', 1, 'r'] -> 'a1r'
-	"""
-	r = ''
-	for i in lis:
-		r += str(i)
-	return r
 
 def is_malformed_url(url):
 	"""
@@ -80,7 +71,7 @@ class Node(dict):
 		Tries to give to the appropriate child the url.
 		"""
 		first_word = self.url_parse.split(url)[0]
-		args = concatenate_list_of_str(self.arg_parse.split(first_word)[1:])
+		args = ''.join(self.arg_parse.split(first_word)[1:])
 		first_word = self.arg_parse.split(first_word)[0]
 		next_url = args + re.sub(args, '', re.sub(first_word, '', url)[1:])
 		if first_word in self.keys():
